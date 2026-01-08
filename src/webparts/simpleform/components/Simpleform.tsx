@@ -6,7 +6,7 @@ import {Web} from "@pnp/sp/presets/all"
 // import { escape } from '@microsoft/sp-lodash-subset';
 import { ISimpleFormState } from './ISimpleFormState';
 import {Dialog} from "@microsoft/sp-dialog";
-import { PrimaryButton, TextField } from '@fluentui/react';
+import { PrimaryButton, Slider, TextField, Toggle } from '@fluentui/react';
 import {PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/PeoplePicker";
 const SimpleForm:React.FC<ISimpleformProps>=(props)=>{
   const [form,setForm]=React.useState<ISimpleFormState>({
@@ -14,7 +14,11 @@ const SimpleForm:React.FC<ISimpleformProps>=(props)=>{
     Email:"",
     FullAddress:"",
     Admin:"",
-    AdminId:0
+    AdminId:0,
+    Age:"",
+    Salary:"",
+    Score:1,
+    Permission:false
   })
    
 
@@ -27,7 +31,11 @@ const items=await web.lists.getByTitle(props.ListName).items.add({
   Title:form.Name,
   EmailAddress:form.Email,
   Address:form.FullAddress,
-  AdminId:form.AdminId
+  AdminId:form.AdminId,
+  Score:form.Score,
+  Age:parseInt(form.Age),
+  Salary:parseFloat(form.Salary),
+  Permission:form.Permission
 });
 console.log(items);
 Dialog.alert(`Record with name ${form.Name} is created successfully`);
@@ -36,7 +44,11 @@ setForm({
     Email:"",
     FullAddress:"",
      Admin:"",
-    AdminId:0
+    AdminId:0,
+     Age:"",
+    Salary:"",
+    Score:1,
+    Permission:false
 });
     }
     catch(err){
@@ -44,7 +56,7 @@ console.log(err);
     }
   }
   // form event for every data type except array
-  const handleChange=(fieldValue:keyof ISimpleFormState,value:string):void=>{
+  const handleChange=(fieldValue:keyof ISimpleFormState,value:string|number|boolean):void=>{
     setForm(prev=>({...prev,[fieldValue]:value}));
   }
   // get Admin
@@ -79,6 +91,11 @@ console.log(err);
     value={form.Email}
     onChange={(_,e)=>handleChange("Email",e||'')}
     />
+    <Toggle
+    label='Permission'
+    checked={form.Permission}
+    onChange={(_,checked)=>handleChange("Permission",checked||'')}
+    />
     {/* People picker */}
 <PeoplePicker
     context={props.context as any}
@@ -91,6 +108,23 @@ console.log(err);
     ensureUser={true}
     defaultSelectedUsers={[form.Admin?form.Admin:'']}
     webAbsoluteUrl={props.siteurl}
+    />
+     <TextField
+    label='Age'
+    value={form.Age}
+    onChange={(_,e)=>handleChange("Age",e||'')}
+    />
+     <TextField
+    label='Salary'
+    value={form.Salary}
+    onChange={(_,e)=>handleChange("Salary",e||'')}
+    prefix='$'
+    suffix='USD'
+    />
+    <Slider
+    label='Score'
+    value={form.Score}
+    onChange={(v)=>handleChange("Score",v||0)}
     />
     <TextField
     label='Full Address'

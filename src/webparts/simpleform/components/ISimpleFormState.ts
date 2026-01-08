@@ -4,4 +4,8 @@ export interface ISimpleFormState{
     FullAddress:string;
     Admin:string|any;
     AdminId:number|any;
+    Salary:any;
+    Score:number;
+    Age:any;
+    Permission:boolean;
 }
