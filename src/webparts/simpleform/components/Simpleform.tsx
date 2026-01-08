@@ -7,9 +7,14 @@ import {Web} from "@pnp/sp/presets/all"
 import { ISimpleFormState } from './ISimpleFormState';
 import {Dialog} from "@microsoft/sp-dialog";
 import { PrimaryButton, TextField } from '@fluentui/react';
+import {PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/PeoplePicker";
 const SimpleForm:React.FC<ISimpleformProps>=(props)=>{
   const [form,setForm]=React.useState<ISimpleFormState>({
-    Name:""
+    Name:"",
+    Email:"",
+    FullAddress:"",
+    Admin:"",
+    AdminId:0
   })
    
 
@@ -19,11 +24,19 @@ const SimpleForm:React.FC<ISimpleformProps>=(props)=>{
 // Read site url
 const web=Web(props.siteurl);
 const items=await web.lists.getByTitle(props.ListName).items.add({
-  Title:form.Name
+  Title:form.Name,
+  EmailAddress:form.Email,
+  Address:form.FullAddress,
+  AdminId:form.AdminId
 });
-Dialog.alert(`item with Id ${items.data} is created sucsessfully`);
+console.log(items);
+Dialog.alert(`Record with name ${form.Name} is created successfully`);
 setForm({
-  Name:""
+  Name:"",
+    Email:"",
+    FullAddress:"",
+     Admin:"",
+    AdminId:0
 });
     }
     catch(err){
@@ -34,6 +47,16 @@ console.log(err);
   const handleChange=(fieldValue:keyof ISimpleFormState,value:string):void=>{
     setForm(prev=>({...prev,[fieldValue]:value}));
   }
+  // get Admin
+  const _getPeoplePickerItems=(items: any[])=> {
+    if(items.length>0){
+      setForm(prev=>({...prev,Admin:items[0].text,AdminId:items[0].id}))
+    }
+    else{
+      setForm(prev=>({...prev,Admin:"",AdminId:0}))
+    }
+  console.log('Items:', items);
+}
   return(
     <>
 
@@ -50,6 +73,31 @@ console.log(err);
     label='Name'
     value={form.Name}
     onChange={(_,e)=>handleChange("Name",e||'')}
+    />
+    <TextField
+    label='Email Address'
+    value={form.Email}
+    onChange={(_,e)=>handleChange("Email",e||'')}
+    />
+    {/* People picker */}
+<PeoplePicker
+    context={props.context as any}
+    titleText="Admin"
+    personSelectionLimit={1}
+    showtooltip={true}
+    onChange={_getPeoplePickerItems}
+    principalTypes={[PrincipalType.User]}
+    resolveDelay={1000} 
+    ensureUser={true}
+    defaultSelectedUsers={[form.Admin?form.Admin:'']}
+    webAbsoluteUrl={props.siteurl}
+    />
+    <TextField
+    label='Full Address'
+    value={form.FullAddress}
+    onChange={(_,e)=>handleChange("FullAddress",e||'')}
+    multiline
+    rows={5}
     />
     <br/>
     <PrimaryButton
