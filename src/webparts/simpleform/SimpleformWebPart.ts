@@ -14,6 +14,7 @@ import { ISimpleformProps } from './components/ISimpleformProps';
 
 export interface ISimpleformWebPartProps {
   description: string;
+  ListName:string;
 }
 
 export default class SimpleformWebPart extends BaseClientSideWebPart<ISimpleformWebPartProps> {
@@ -21,7 +22,7 @@ export default class SimpleformWebPart extends BaseClientSideWebPart<ISimpleform
   private _isDarkTheme: boolean = false;
   private _environmentMessage: string = '';
 
-  public render(): void {
+  public async render(): Promise<void> {
     const element: React.ReactElement<ISimpleformProps> = React.createElement(
       Simpleform,
       {
@@ -31,8 +32,11 @@ export default class SimpleformWebPart extends BaseClientSideWebPart<ISimpleform
         hasTeamsContext: !!this.context.sdks.microsoftTeams,
         userDisplayName: this.context.pageContext.user.displayName,
          context:this.context,
-        ListName:"First List",
-        siteurl:this.context.pageContext.web.absoluteUrl
+        ListName:this.properties.ListName,
+        siteurl:this.context.pageContext.web.absoluteUrl,
+        departmentOptions:await this.getChoiceValues(this.properties.ListName,this.context.pageContext.web.absoluteUrl,"Department"),
+        genderOptions:await this.getChoiceValues(this.properties.ListName,this.context.pageContext.web.absoluteUrl,"Gender"),
+        skillsOptions:await this.getChoiceValues(this.properties.ListName,this.context.pageContext.web.absoluteUrl,"Skills")
       }
     );
 
@@ -120,5 +124,33 @@ export default class SimpleformWebPart extends BaseClientSideWebPart<ISimpleform
         }
       ]
     };
+  }
+  //Read choice values
+
+  private async getChoiceValues(ListName:string,siteurl:string,fieldValue:any):Promise<string>{
+try{
+const response=await fetch(`${siteurl}/_api/web/lists/getbytitle('${ListName}')/fields?$filter=EntityPropertyName eq '${fieldValue}'`,
+ {
+  method:'GET',
+  headers:{
+    'Accept':'application/json;odata=nometadata'
+  }
+ }
+);
+if(!response.ok){
+  throw new Error(`Error while getting choice values ${response.text}-${response.status}`);
+};
+const data=await response.json();
+const choices=data.value[0].Choices
+
+return choices.map((item:any)=>({
+  key:item,
+  text:item
+}));
+}
+catch(err){
+console.log('Error while getting choice',err);
+throw err;
+}
   }
 }

@@ -22,7 +22,8 @@
     "description": { "default": "Simpleform description" },
     "officeFabricIconFontName": "Page",
     "properties": {
-      "description": "Simpleform"
+      "description": "Simpleform",
+      "ListName":"First List"
     }
   }]
 }

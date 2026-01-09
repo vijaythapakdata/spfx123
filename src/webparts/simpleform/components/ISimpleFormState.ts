@@ -8,4 +8,6 @@ export interface ISimpleFormState{
     Score:number;
     Age:any;
     Permission:boolean;
+    Department:string;
+    Gender:string;
 }

@@ -9,4 +9,8 @@ export interface ISimpleformProps {
     ListName:string;
   context:WebPartContext;
   siteurl:string;
+  departmentOptions:any; //Department single seelcted dropdwon
+  genderOptions:any; //radio button
+  skillsOptions:any; //multiselect
+  // cityoptions:string|any; // lookup
 }

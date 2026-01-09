@@ -6,7 +6,7 @@ import {Web} from "@pnp/sp/presets/all"
 // import { escape } from '@microsoft/sp-lodash-subset';
 import { ISimpleFormState } from './ISimpleFormState';
 import {Dialog} from "@microsoft/sp-dialog";
-import { PrimaryButton, Slider, TextField, Toggle } from '@fluentui/react';
+import { ChoiceGroup, Dropdown, PrimaryButton, Slider, TextField, Toggle } from '@fluentui/react';
 import {PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/PeoplePicker";
 const SimpleForm:React.FC<ISimpleformProps>=(props)=>{
   const [form,setForm]=React.useState<ISimpleFormState>({
@@ -18,7 +18,9 @@ const SimpleForm:React.FC<ISimpleformProps>=(props)=>{
     Age:"",
     Salary:"",
     Score:1,
-    Permission:false
+    Permission:false,
+    Department:"",
+    Gender:""
   })
    
 
@@ -35,7 +37,9 @@ const items=await web.lists.getByTitle(props.ListName).items.add({
   Score:form.Score,
   Age:parseInt(form.Age),
   Salary:parseFloat(form.Salary),
-  Permission:form.Permission
+  Permission:form.Permission,
+  Department:form.Department,
+  Gender:form.Gender
 });
 console.log(items);
 Dialog.alert(`Record with name ${form.Name} is created successfully`);
@@ -48,7 +52,9 @@ setForm({
      Age:"",
     Salary:"",
     Score:1,
-    Permission:false
+    Permission:false,
+    Department:"",
+    Gender:""
 });
     }
     catch(err){
@@ -125,6 +131,20 @@ console.log(err);
     label='Score'
     value={form.Score}
     onChange={(v)=>handleChange("Score",v||0)}
+    />
+    {/* Choice */}
+    <Dropdown
+    label='Department'
+    options={props.departmentOptions}
+    placeholder='--select--'
+    selectedKey={form.Department}
+    onChange={(_,option)=>handleChange("Department",option?.key as string )}
+    />
+    <ChoiceGroup
+    label='Gender'
+    options={props.genderOptions}
+    selectedKey={form.Gender}
+     onChange={(_,option)=>handleChange("Gender",option?.key as string )}
     />
     <TextField
     label='Full Address'
